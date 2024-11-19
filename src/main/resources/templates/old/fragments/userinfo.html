@@ -17,19 +17,18 @@
                 </tr>
                 </thead>
                 <tbody>
-<!--                <tr class="border-top bg-light" th:object="${aboutuser}">-->
-<!--                    <td th:text="*{username}"/>-->
-<!--                    <td th:text="*{password}"/>-->
-<!--                    <td th:text="*{name}"/>-->
-<!--                    <td th:text="*{surname}"/>-->
-<!--                    <td th:text="*{age}"/>-->
-<!--                    <td>-->
-<!--                        <th:block th:each="role : *{roleSet}">-->
-<!--                            &nbsp;<span th:text="${role}"/>-->
-<!--                        </th:block>-->
-<!--                    </td>-->
-<!--                </tr>-->
-                </tbody>
+                <tr class="border-top bg-light" th:object="${aboutuser}">
+                    <td th:text="*{username}"/>
+                    <td th:text="*{password}"/>
+                    <td th:text="*{name}"/>
+                    <td th:text="*{surname}"/>
+                    <td th:text="*{age}"/>
+                    <td>
+                        <th:block th:each="role : *{roleSet}">
+                            &nbsp;<span th:text="${role}"/>
+                        </th:block>
+                    </td>
+                </tr>
             </table>
         </div>
     </div>

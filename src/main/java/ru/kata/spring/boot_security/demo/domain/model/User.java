@@ -36,7 +36,7 @@ public class User {
     private Integer age;
 
 
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "users_roles",
         joinColumns = @JoinColumn(name = "users_id"),

@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/admin")
+@CrossOrigin
 public class AdminController {
 
     private UserService userService;
@@ -63,8 +64,11 @@ public class AdminController {
 
     @PostMapping("/user/add")
     public ResponseEntity<HttpStatus> addUser(@RequestBody User user) {
+        String s = "";
         userService.addUser(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        List<User> users = userService.getUserList();
+        String s1 = "";
+        return  ResponseEntity.ok(HttpStatus.CREATED);
     }
 
     @DeleteMapping("/user/{userId}")
