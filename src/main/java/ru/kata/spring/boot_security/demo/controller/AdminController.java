@@ -41,7 +41,7 @@ public class AdminController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/userget/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable("userId") String id) {
         User user = userService.getUser(id).get();
         return new ResponseEntity<User>(user, HttpStatus.OK);
@@ -52,27 +52,26 @@ public class AdminController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PutMapping("/user/{userId}")
+    @PutMapping("/userput/{userId}")
     public ResponseEntity<User> editUser(@PathVariable String userId, @RequestBody User user) {
+        String s = "";
         User userTmp = userService.getUser(userId).get();
         if (userTmp == null) {
             throw new NoSuchElementException("Пользователь с ID " + userId + " не найден");
         }
         User userUpdate = userService.updateUser(userId, user);
-        return new ResponseEntity<User>(userUpdate, HttpStatus.OK);
+        return new ResponseEntity<>(userUpdate, HttpStatus.OK);
     }
 
     @PostMapping("/user/add")
     public ResponseEntity<HttpStatus> addUser(@RequestBody User user) {
-        String s = "";
         userService.addUser(user);
-        List<User> users = userService.getUserList();
-        String s1 = "";
         return  ResponseEntity.ok(HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/user/{userId}")
+    @DeleteMapping("/userdel/{userId}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable ("userId") String id) {
+        String s = "";
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

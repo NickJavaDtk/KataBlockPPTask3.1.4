@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     console.log('Скрипт загружен');
     await listRecord();
     await addNewUserForm();
+    //await openEditWindow()
 
 
 });
@@ -27,26 +28,25 @@ async function listRecord() {
                     table.innerHTML +=
                         `
                 <tr>
-                    <td>${user.id}</td>
-                                <td>${user.username}</td>
-                                <td>${user.password}</td>
-                                <td>${user.name}</td>
-                                <td>${user.surname}</td>
-                                <td>${user.age}</td>
-                                <td>
-                                    <td>
-                                        <button type="button" className="btn btn-info" data-bs-toggle="modal"
-                                                data-bs-target="#editModal">
+                     <td>${user.username}</td>
+                     <td>${user.password}</td>
+                     <td>${user.name}</td>
+                      <td>${user.surname}</td>
+                      <td>${user.age}</td>
+                      <td>
+                          <td>
+                              <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                         data-bs-target="#editModal" onclick="openEditWindow(${user.id})">
                                             Изменить
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button type="button" className="btn btn-danger" data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal">
+                              </button>
+                          </td>
+                           <td>
+                             <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal" onclick="openDeleteWindow(${user.id})">
                                             Удалить
-                                        </button>
-                                    </td>
-                                </td>            
+                             </button>
+                           </td>
+                      </td>                                
                 </tr>
                 `
                 })
@@ -109,8 +109,164 @@ async function addNewUserForm() {
     });
 }
 
+async function putUpdateUser(userId, editUser) {
+     await fetch(`/admin/userput/${userId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'},
+        body: JSON.stringify(editUser)
+    });
+}
+
+async function openEditWindow(userId) {
+    console.log("Пользователь", userId);
+    try {
+        const response = await  fetch(`/admin/userget/${userId}`);
+        if (!response.ok) {
+            throw new Error('Пользователь для редактирования не найде');
+        }
+        const user = await response.json();
+        document.querySelector('#idEdit').value = user.id;
+        document.querySelector('#loginEdit').value = user.username;
+        document.querySelector('#passwordEdit').value = user.password;
+        document.querySelector('#nameEdit').value = user.name;
+        document.querySelector('#surnameEdit').value = user.surname;
+        document.querySelector('#ageEdit').value = user.age;
+
+        const editRoles = document.querySelector('#rolesEdit');
+        editRoles.innerHTML = '';
+        user.roleSet.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role.id;
+            option.textContent = role.name;
+            editRoles.appendChild(option);
+        });
+        const editModal = new bootstrap.Modal(document.querySelector('#editModal'));
+        editModal.show();
+    }  catch (error) {
+        console.error('Ошибка при заполнении формы редактирования:', error);
+    }
+}
+
+document.querySelector('#editFormBody').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const userId = document.querySelector('#idEdit').value;
+    const roleSelected = document.querySelector('#rolesEdit');
+    const modalEdit = document.querySelector('#editModal');
+    let roles = [];
+    for (let option of roleSelected.selectedOptions) {
+        if (option.value === USER_ROLE.name) {
+            roles.push(USER_ROLE);
+        } else if (option.value === ADMIN_ROLE.name) {
+            roles.push(ADMIN_ROLE);
+        } else {
+            roles.push(ADMIN_ROLE, USER_ROLE);
+        }
+    }
+    const editUser = {
+        id: userId,
+        username: document.querySelector('#loginEdit').value,
+        password: document.querySelector('#passwordEdit').value,
+        name: document.querySelector('#nameEdit').value,
+        surname: document.querySelector('#surnameEdit').value,
+        age: document.querySelector('#ageEdit').value,
+        roleSet: roles
+    };
+    //try {
+        // const response = await fetch(`/admin/userput/${userId}`, {
+        //     method: 'PUT',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(editUser)
+        // });
+        console.log("Собран пользователь" , editUser);
+        const response = await putUpdateUser(userId, editUser);
+        console.log('Текст ответа', response);
+        await listRecord();
+        const editModal = bootstrap.Modal.getInstance(modalEdit);
+        editModal.hide();
+        document.querySelector('#v-pills-admin-tab').click();
+
+});
 
 
+async function DeleteUser(userId) {
+    await fetch(`/admin/userdel/${userId}`, {
+        method: 'DELETE'});
+}
+
+async function openDeleteWindow(userId) {
+    console.log("Пользователь", userId);
+    try {
+        const response = await  fetch(`/admin/userget/${userId}`);
+        if (!response.ok) {
+            throw new Error('Пользователь для редактирования не найде');
+        }
+        const user = await response.json();
+        document.querySelector('#idDel').value = user.id;
+        document.querySelector('#loginDel').value = user.username;
+        document.querySelector('#passwordDel').value = user.password;
+        document.querySelector('#nameDel').value = user.name;
+        document.querySelector('#surnameDel').value = user.surname;
+        document.querySelector('#ageDel').value = user.age;
+
+        const deleteRoles = document.querySelector('#rolesDelete');
+        deleteRoles.innerHTML = '';
+        user.roleSet.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role.id;
+            option.textContent = role.name;
+            deleteRoles.appendChild(option);
+        });
+        const deleteModal = new bootstrap.Modal(document.querySelector('#deleteModal'));
+        deleteModal.show();
+    }  catch (error) {
+        console.error('Ошибка при заполнении формы удаления:', error);
+    }
+}
+
+
+document.querySelector('#deleteFormBody').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const userId = document.querySelector('#idDel').value;
+    //const roleSelected = document.querySelector('#rolesEdit');
+    const modalDelete = document.querySelector('#deleteModal');
+    // let roles = [];
+    // for (let option of roleSelected.selectedOptions) {
+    //     if (option.value === USER_ROLE.name) {
+    //         roles.push(USER_ROLE);
+    //     } else if (option.value === ADMIN_ROLE.name) {
+    //         roles.push(ADMIN_ROLE);
+    //     } else {
+    //         roles.push(ADMIN_ROLE, USER_ROLE);
+    //     }
+    // }
+    // const editUser = {
+    //     id: userId,
+    //     username: document.querySelector('#loginEdit').value,
+    //     password: document.querySelector('#passwordEdit').value,
+    //     name: document.querySelector('#nameEdit').value,
+    //     surname: document.querySelector('#surnameEdit').value,
+    //     age: document.querySelector('#ageEdit').value,
+    //     roleSet: roles
+    // };
+    //try {
+    // const response = await fetch(`/admin/userput/${userId}`, {
+    //     method: 'PUT',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(editUser)
+    // });
+    //console.log("Собран пользователь" , editUser);
+    await DeleteUser(userId);
+    await listRecord();
+    const deleteModal = bootstrap.Modal.getInstance(modalDelete);
+    deleteModal.hide();
+    document.querySelector('#v-pills-admin-tab').click();
+
+});
 
 
 
@@ -144,110 +300,4 @@ async function addNewUserForm() {
 //         });
 // }
 //
-// formAddUser.addEventListener("click", function (event) {
-//     event.preventDefault();
-//     newUser = {
-//         username: document.querySelector('#loginNew').nodeValue,
-//         password: document.querySelector('#passwordNew').nodeValue,
-//         name: document.querySelector('#nameNew').nodeValue,
-//         surname: document.querySelector('#surnameNew').nodeValue,
-//         age: document.querySelector('#ageNew').nodeValue,
-//         roleSet: Array.from(document.getElementById("roleNew").selectedOptions).map(option => option.value)
-//     };
-// });
-//
-// function addUser(newUser) {
-//     try {
-//         const response = fetch("admin/user/add", {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(newUser)
-//         });
-//         if (response.ok) {
-//             console.log("Пользователь добавлен");
-//             formAddUser.reset();
-//             document.querySelector('a#v-pills-admin').click();
-//             addTableUsers();
-//         }
-//     } catch (error) {
-//         console.error('Ошибка добавления пользователя', error)
-//     }
-//
-//     addNewUserTabPane.addEventListener('click', event => {
-//         if (event.target.classList.contains('btn-save')) {
-//             addUser(newUser);
-//             formAddUser.reset();
-//             document.querySelector('a#v-pills-admin').click();
-//         }
-//     });
-// }
-// async function openEditWindow(userId) {
-//     try {
-//         const response = await  fetch('/admin/user/${userId}}');
-//         if (!response.ok) {
-//             throw new Error('Пользователь для редактирования не найде');
-//         }
-//         const user = await response.json();
-//         document.querySelector('#idEdit').value = user.id;
-//         document.querySelector('#loginEdit').value = user.username;
-//         document.querySelector('#passwordEdit').value = user.password;
-//         document.querySelector('#nameEdit').value = user.name;
-//         document.querySelector('#surnameEdit').value = user.surname;
-//         document.querySelector('#ageEdit').value = user.age;
-//
-//         const editRoles = document.querySelector('#rolesEdit');
-//         editRoles.innerHTML = '';
-//         user.roleSet.forEach(role => {
-//             const option = document.createElement('option');
-//             option.value = role.id;
-//             option.textContent = role.name;
-//             editRoles.appendChild(option);
-//         });
-//         const editModal = new bootstrap.Modal(document.querySelector('#editModal'));
-//         editModal.show();
-//     }  catch (error) {
-//         console.error('Ошибка при заполнении формы редактирования:', error);
-//     }
-// }
-//
-// document.querySelector('#editFormBody').addEventListener('submit', async (event) => {
-//     event.preventDefault();
-//     const userId = document.querySelector('#idEdit').value;
-//     const editUser = {
-//         id: userId,
-//         username: document.querySelector('#loginEdit').value,
-//         password: document.querySelector('#passwordEdit').value,
-//         name: document.querySelector('#nameEdit').value,
-//         surname: document.querySelector('#surnameEdit').value,
-//         age: document.querySelector('#ageEdit').value,
-//         roleSet: Array.from(document.querySelector('#rolesEdit').selectedOptions).map(option => option.value)
-//     };
-//     try {
-//         const response = await fetch('/admin/user/${userId}', {
-//             method: 'PUT',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(editUser)
-//         });
-//         let responseText = await response.text();
-//         console.log('Текст ответа', responseText);
-//         if (!response.ok) {
-//             const err = JSON.parse(responseText);
-//             throw new Error('Ошибка обновления пользователя ' + (err.message || 'Неизвестная ошибка'));
-//         }
-//         const updateUser = JSON.parse(responseText);
-//         console.log('Пользователь обновлен ', updateUser);
-//         await addTableUsers();
-//         const editModal = bootstrap.Modal.getInstance(document.querySelector('#editModalWindow'));
-//         if (editModal) {
-//             editModal.hide();
-//         }
-//     } catch (err) {
-//         console.log('Ошибка при обновлении пользователя', err);
-//         await addTableUsers();
-//     }
-//
-// });
+
