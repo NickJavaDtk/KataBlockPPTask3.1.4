@@ -6,7 +6,19 @@
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
 </head>
 <body>
-<header th:replace="~{fragments/header :: header}"/>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-light">
+        <div class="container-fluid">
+            <div>
+                <span class="fw-bold" id="spanUserName">USERNAME</span>
+                <span> С ролями </span>
+                <span id="spanRoles"></span>
+            </div>
+            <a class="text-decoration-none font-weight-bold text-secondary" th:href="@{/logout}">Выйти</a>
+        </div>
+    </nav>
+</header>
+
 <div class="container-fluid">
     <div class="row">
         <div class="col bg-white px-0">
@@ -21,12 +33,75 @@
             <div class="tab-content" id="v-pills-tabContent">
                 <div class="tab-pane fade show active" id="v-pills-user" role="tabpanel"
                      aria-labelledby="v-pills-user-tab">
-                    <div th:replace="~{fragments/userInfo :: userInfo}"/>
+                    <h1 class="ps-3">Страница пользователя</h1>
+                    <div class="container-fluid">
+                        <div class="row border">
+                            <h5 class="p-2">О пользователя</h5>
+                        </div>
+                        <div class="row border bg-white">
+                            <table class="table table-borderless table-striped">
+                                <thead>
+                                <tr class="border-top">
+                                    <th scope="col">Логин</th>
+                                    <th scope="col">Пароль</th>
+                                    <th scope="col">Имя</th>
+                                    <th scope="col">Фамилия</th>
+                                    <th scope="col">Возраст</th>
+                                    <th scope="col">Роль</th>
+                                </tr>
+                                </thead>
+                                <tbody id="tableUser">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        console.log('Скрипт загружен');
+        await listRecordUser();
+    });
+
+
+
+    async function listRecordUser() {
+        const table = document.querySelector('#tableUser');
+        const spanUsername = document.querySelector('#spanUserName');
+        const spanRoles = document.querySelector('#spanRoles');
+        table.innerHTML = "";
+        fetch("admin/user")
+            .then(response => response.json())
+            .then(user => {
+                const  roles = user.roleSet.map(role => role.name).join(", ");
+                spanUsername.innerHTML = `${user.username}`;
+                spanRoles.innerHTML = `${user.roleSet.map(role => role.name).join(", ")}`;
+                table.innerHTML +=
+                    `
+                <tr>
+                     <td>${user.username}</td>
+                     <td>${user.password}</td>
+                     <td>${user.name}</td>
+                      <td>${user.surname}</td>
+                      <td>${user.age}</td>
+                      <td>${user.roleSet.map(role => role.name).join(", ")}</td>
+                </tr>
+                `
+
+
+            })
+            .catch(err => {
+                console.log('Ошибка по катч')
+            });
+
+    }
+
+
+</script>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

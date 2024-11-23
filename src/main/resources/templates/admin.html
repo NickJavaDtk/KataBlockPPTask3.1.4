@@ -8,7 +8,20 @@
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
 </head>
 <body>
-<header th:replace="~{fragments/header :: header}"/>
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-light">
+        <div class="container-fluid">
+            <div>
+                <span class="fw-bold" id="spanUserName">USERNAME</span>
+                <span> С ролями </span>
+                <span id="spanRoles"></span>
+            </div>
+            <a class="text-decoration-none font-weight-bold text-secondary" th:href="@{/logout}">Выйти</a>
+        </div>
+    </nav>
+</header>
+
 <div class="container-fluid">
     <div class="row">
         <!--        sidebar start-->
@@ -33,7 +46,7 @@
                     <div th:replace="this :: adminInfo"/>
                 </div>
                 <div class="tab-pane fade" id="v-pills-user" role="tabpanel" aria-labelledby="v-pills-user-tab">
-                    <div th:replace="~{fragments/userInfo :: userInfo}"/>
+                    <div th:replace="~{this :: userInfo}"/>
                 </div>
             </div>
         </div>
@@ -136,6 +149,33 @@
 <!--                navigation tabs end-->
             </div>
         </div>
+        <div class="invisible">
+            <div th:fragment="userInfo">
+                <h1 class="ps-3">Страница пользователя</h1>
+                <div class="container-fluid">
+                    <div class="row border">
+                        <h5 class="p-2">О пользователя</h5>
+                    </div>
+                    <div class="row border bg-white">
+                        <table class="table table-borderless table-striped">
+                            <thead>
+                            <tr class="border-top">
+                                <th scope="col">Логин</th>
+                                <th scope="col">Пароль</th>
+                                <th scope="col">Имя</th>
+                                <th scope="col">Фамилия</th>
+                                <th scope="col">Возраст</th>
+                                <th scope="col">Роль</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tableCurrentUser">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -214,11 +254,8 @@
                                                 size="2"
                                                 id="rolesEdit"
                                                 name="roleSet" required="true">
-                                            <!--                                                <option th:each="role: ${role}"-->
-                                            <!--                                                        th:value="${role.getId()}"-->
-                                            <!--                                                        th:text="${role.getName()}"-->
-                                            <!--                                                        required="true">-->
-                                            <!--                                                </option>-->
+                                            <option value="USER">USER</option>
+                                            <option value="ADMIN">ADMIN</option>
                                         </select>
                                     </div>
 
@@ -338,268 +375,6 @@
     </div>
 
 <!--Модальное окно удаления конец кода-->
-
-
-<!--<script>
-    // const formAddUser = document.querySelector('#formAddUser');
-    // const addNewUserTabPane = document.querySelector('#newUserTab');
-    // let newUserFromRow;
-    // const ROLE_USER = {id : 1, name : "USER"};
-    // const ROLE_ADMIN = {id : 2, name : "ADMIN"};
-    //
-    //
-    // console.log('Старт скрипта');
-    // document.addEventListener('DOMContentLoaded', async function() {
-    //     await addTableAllUsers();
-    //     await addUser();
-    //
-    // });
-    //
-    // function addTableAllUsers() {
-    //     const tableUsers = document.querySelector('#tableAddAllUsers');
-    //     fetch('admin/users')
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 console.log('Что-то с загрузкой json файла');
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(users => {
-    //             console.log('Список пользователей получен');
-    //             if (Array.isArray(users)) {
-    //                 users.forEach(user => {
-    //                     tableUsers.innerHTML +=
-    //                         `
-    //                         <tr>
-    //                             <td>${user.id}</td>
-    //                             <td>${user.username}</td>
-    //                             <td>${user.password}</td>
-    //                             <td>${user.name}</td>
-    //                             <td>${user.surname}</td>
-    //                             <td>${user.age}</td>
-    //                             <td>
-    //                                 <td>
-    //                                     <button type="button" className="btn btn-info" data-bs-toggle="modal"
-    //                                             data-bs-target="#editModal">
-    //                                         Изменить
-    //                                     </button>
-    //                                 </td>
-    //                                 <td>
-    //                                     <button type="button" className="btn btn-danger" data-bs-toggle="modal"
-    //                                             data-bs-target="#deleteModal">
-    //                                         Удалить
-    //                                     </button>
-    //                                 </td>
-    //                             </td>
-    //                         </tr>
-    //                         `
-    //                 });
-    //             } else {
-    //                 console.log('Ошибка в массиве');
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.log('Ошибка по катч', err);
-    //         }) ;
-    // }
-    // async function createFetchNewUser(user) {
-    //     await fetch('admin/user/add', {
-    //         method: 'POST',
-    //         headers: {'Content-Type': 'application/json'},
-    //         body: JSON.stringify(user)
-    //     });
-    //
-    // }
-    //
-    //
-    // // formAddUser.addEventListener("click", function (event) {
-    // //     //event.preventDefault();
-    // //     newUser = {
-    // //         username: document.getElementById("loginNew").value,
-    // //         password: document.getElementById("passwordNew").value,
-    // //         name: document.getElementById("nameNew").value,
-    // //         surname: document.getElementById("surnameNew").value,
-    // //         age: document.getElementById("ageNew").value,
-    // //         roleSet: Array.from(document.getElementById("roleNew").selectedOptions).map(option => option.value)
-    // //     };
-    // //     console.log('Собран пользователь', newUser);
-    // // });
-    //
-    // async function addUser() {
-    //     formAddUser.addEventListener("click", async function (event) {
-    //         console.log('Форма для ввода', formAddUser);
-    //         event.preventDefault();
-    //
-    //
-    //         newUserFromRow = {
-    //             username: document.getElementById("loginNew").value,
-    //             password: document.getElementById("passwordNew").value,
-    //             name: document.getElementById("nameNew").value,
-    //             surname: document.getElementById("surnameNew").value,
-    //             age: document.getElementById("ageNew").value,
-    //             roleSet : Array.from(document.querySelector('#rolesEdit').selectedOptions).map(option => option.value)
-    //         }
-    //     });
-    //     formAddUser.addEventListener("submit", async function()  {
-    //         console.log('Сам пользователь',  newUserFromRow);
-    //         await createFetchNewUser(newUserFromRow);
-    //         formAddUser.reset();
-    //         document.querySelector('#v-pills-admin').click();
-    //         await addTableAllUsers();
-    //     });
-
-            //alert(newUserFromRow);
-            // addNewUserTabPane.addEventListener('click', event => {
-            //     if (event.target.classList.contains('btn-save-new')) {
-            //         createFetchNewUser(newUserFromRow);
-            //         formAddUser.reset();
-            //         document.querySelector('#v-pills-admin').click();
-            //         addTableAllUsers();
-            //     };
-            // });
-            // await createFetchNewUser(newUserFromRow);
-            // formAddUser.reset();
-            // //document.querySelector('#v-pills-admin').click();
-            // await addTableAllUsers();
-    };
-
-
-
-            // alert(response);
-            // console.log('Объект response', response);
-            // if (response.ok) {
-            //     console.log("Пользователь добавлен");
-            //     formAddUser.reset();
-            //     document.querySelector('#v-pills-admin').click();
-            //     addTableAllUsers();
-            // }
-            //  fetch('admin/user/add', {
-            //         method: 'POST',
-            //         headers: {'Content-Type': 'application/json'},
-            //         body: JSON.stringify(newUser)
-            //     });
-            //     console.log('Объект response', response);
-            //     console.log("Пользователь добавлен");
-            //     formAddUser.reset();
-            //     document.querySelector('#v-pills-admin').click();
-            //      addTableAllUsers();
-            //
-
-        //     console.error('Ошибка добавления пользователя', error)
-        //
-        //
-        // addNewUserTabPane.addEventListener('click', event => {
-        //     if (event.target.classList.contains('btn-save-new')) {
-        //         addUser(newUser);
-        //         console.log('В методе обновления таблицы пользователей', newUser);
-        //         formAddUser.reset();
-        //         document.querySelector('#v-pills-admin').click();
-        //     }
-        // });
-
-
-
-    // const username = formAddUser.getElementById("loginNew").value.trim;
-    // const password = formAddUser.getElementById("passwordNew").value.trim;
-    // const name = formAddUser.getElementById("nameNew").value.trim;
-    // const surname = formAddUser.getElementById("surnameNew").value.trim;
-    // const age = formAddUser.getElementById("ageNew").value.trim;
-    // const role = formAddUser.querySelector('#roleNew');
-    //
-    //
-
-    // username: username,
-    // password: password,
-    // name: name,
-    // surname: surname,
-    // age: age,
-    // roleSet: roles
-    //
-    // let roles = [];
-    // for (let option of role.selectedOptions) {
-    //     if (option.value === ROLE_USER.name) {
-    //         roles.push(ROLE_USER);
-    //     } else if (option.value === ROLE_ADMIN.name) {
-    //         roles.push(ROLE_USER, ROLE_ADMIN);
-    //     }
-    // }
-
-
-
-
-</script> -->
-
-
-<!--                    <div class="tab-pane fade px-4" id="newUser" role="tabpanel" aria-labelledby="nav-newUser-tab">-->
-<!--                        <div class="p-2">-->
-<!--                            <h5>Добавить пользователя</h5>-->
-<!--                        </div>-->
-<!--                        &lt;!&ndash;Форма для ввода нового пользователя&ndash;&gt;-->
-<!--                        <div class="row justify-content-center align-items-center bg-white">-->
-<!--                            <div class="col-4">-->
-<!--                                <form class="text-center" th:method="POST" th:action="@{/admin/user/add}"-->
-<!--                                      th:object="${newuser}">-->
-<!--                                    <div class="form-group fw-bold">-->
-<!--                                        <div class="form-group m-3">-->
-<!--                                            <div class="form-group m-3">-->
-<!--                                                <label for="loginNew" class="col-form-label">Логин</label>-->
-<!--                                                <input type="text" class="form-control" id="loginNew"-->
-<!--                                                        th:field="*{username}" th:value="${aboutuser.getUsername()}" required autocomplete="off"/>-->
-<!--                                            </div>-->
-
-<!--                                            <div class="form-group m-3">-->
-<!--                                                <label for="passwordNew" class="col-form-label">Пароль</label>-->
-<!--                                                <input type="text" class="form-control" id="passwordNew"-->
-<!--                                                       name="password" th:field="*{password}" th:value="${aboutuser.getPassword()}" required autocomplete="off"/>-->
-
-<!--                                            </div>-->
-
-<!--                                            <div class="form-group m-3">-->
-<!--                                                <label for="nameNew" class="col-form-label">Имя</label>-->
-<!--                                                <input type="text" class="form-control" id="nameNew"-->
-<!--                                                       name="name" th:field="*{name}" th:value="${aboutuser.getName()}" required autocomplete="off"/>-->
-<!--                                            </div>-->
-<!--                                            <div class="form-group m-3">-->
-<!--                                                <label for="surnameNew" class="col-form-label">Фамилия</label>-->
-<!--                                                <input type="text" class="form-control" id="surnameNew"-->
-<!--                                                       name="surname" th:field="*{surname}" th:value="${aboutuser.getSurname()}" required/>-->
-<!--                                            </div>-->
-<!--                                            <div class="form-group m-3">-->
-<!--                                                <label for="ageNew" class="col-form-label">Возраст</label>-->
-<!--                                                <input type="number" class="form-control" id="ageNew"-->
-<!--                                                       name="age" th:field="*{age}" th:value="${aboutuser.getAge()}" required/>-->
-<!--                                            </div>-->
-
-<!--                                            <div class="form-group m-3" readonly="readonly">-->
-<!--                                                <label for="role">Role</label>-->
-<!--                                                <select th:field="*{roleSet}" class="form-select w-100" multiple-->
-<!--                                                        aria-label="multiple select example"-->
-<!--                                                        size="2"-->
-<!--                                                        id="role"-->
-<!--                                                        name="checkedRoles" required>-->
-<!--                                                    <option th:each="role : ${role}"-->
-<!--                                                            th:value="${role.getId()}"-->
-<!--                                                            th:text="${role.getName()}">-->
-<!--                                                    </option>-->
-<!--                                                </select>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-<!--                                    <button type="submit" class="btn btn-success">Добавить пользователя</button>-->
-<!--                                </form>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        &lt;!&ndash;Конец формы для ввода нового пользователя&ndash;&gt;-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        &lt;!&ndash;        navigation tabs end&ndash;&gt;-->
-<!--    </div>-->
-<!--</div>-->
-
-
-
 
 
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>

@@ -1,7 +1,8 @@
 
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('Скрипт загружен');
-    await listRecord();
+    await listRecordsUsers();
+    await listRecordUser();
     await addNewUserForm();
     //await openEditWindow()
 
@@ -16,7 +17,7 @@ const ADMIN_ROLE = {id: 2, name: "ADMIN"};
 
 let newUser;
 
-async function listRecord() {
+async function listRecordsUsers() {
     const table = document.querySelector('#tableAddAllUsers');
     table.innerHTML = "";
     fetch("admin/users")
@@ -33,6 +34,7 @@ async function listRecord() {
                      <td>${user.name}</td>
                       <td>${user.surname}</td>
                       <td>${user.age}</td>
+                      <td>${user.roleSet.map(role => role.name).join(", ")}</td>
                       <td>
                           <td>
                               <button type="button" class="btn btn-info" data-bs-toggle="modal"
@@ -54,6 +56,38 @@ async function listRecord() {
                 console.log('Какия то ошибка');
 
             }
+        })
+        .catch(err => {
+            console.log('Ошибка по катч')
+        });
+
+}
+
+async function listRecordUser() {
+    const table = document.querySelector('#tableCurrentUser');
+    const spanUsername = document.querySelector('#spanUserName');
+    const spanRoles = document.querySelector('#spanRoles');
+    table.innerHTML = "";
+    fetch("admin/user")
+        .then(response => response.json())
+        .then(user => {
+            //const  roles = user.roleSet.map(role => role.name).join(", ")
+            spanUsername.innerHTML = `${user.username}`;
+            spanRoles.innerHTML = `${user.roleSet.map(role => role.name).join(", ")}`;
+                    table.innerHTML +=
+                        `
+                <tr>
+                     <td>${user.username}</td>
+                     <td>${user.password}</td>
+                     <td>${user.name}</td>
+                      <td>${user.surname}</td>
+                      <td>${user.age}</td>
+                      <td>${user.roleSet.map(role => role.name).join(", ")}</td>
+                           
+                </tr>
+                `
+
+
         })
         .catch(err => {
             console.log('Ошибка по катч')
@@ -105,7 +139,7 @@ async function addNewUserForm() {
         console.log("Ответ сервера ", response);
         newUserForm.reset();
         document.querySelector('#nav-tab').click();
-        await listRecord();
+        await listRecordsUsers();
     });
 }
 
@@ -123,7 +157,7 @@ async function openEditWindow(userId) {
     try {
         const response = await  fetch(`/admin/userget/${userId}`);
         if (!response.ok) {
-            throw new Error('Пользователь для редактирования не найде');
+            throw new Error('Пользователь для редактирования не найден');
         }
         const user = await response.json();
         document.querySelector('#idEdit').value = user.id;
@@ -134,13 +168,23 @@ async function openEditWindow(userId) {
         document.querySelector('#ageEdit').value = user.age;
 
         const editRoles = document.querySelector('#rolesEdit');
-        editRoles.innerHTML = '';
-        user.roleSet.forEach(role => {
+        // editRoles.innerHTML = '';
+        // user.roleSet.forEach(role => {
+        //     const option = document.createElement('option');
+        //     option.value = role.id;
+        //     option.textContent = role.name;
+        //     editRoles.appendChild(option);
+        // });
+        let roles = [];
+        roles.push(ADMIN_ROLE, USER_ROLE);
+        editRoles.innerHTML = "";
+        roles.forEach(role => {
             const option = document.createElement('option');
             option.value = role.id;
             option.textContent = role.name;
             editRoles.appendChild(option);
         });
+
         const editModal = new bootstrap.Modal(document.querySelector('#editModal'));
         editModal.show();
     }  catch (error) {
@@ -154,6 +198,7 @@ document.querySelector('#editFormBody').addEventListener('submit', async (event)
     const roleSelected = document.querySelector('#rolesEdit');
     const modalEdit = document.querySelector('#editModal');
     let roles = [];
+    console.log('выбраны роли ', roleSelected.selectedOptions);
     for (let option of roleSelected.selectedOptions) {
         if (option.value === USER_ROLE.name) {
             roles.push(USER_ROLE);
@@ -183,7 +228,7 @@ document.querySelector('#editFormBody').addEventListener('submit', async (event)
         console.log("Собран пользователь" , editUser);
         const response = await putUpdateUser(userId, editUser);
         console.log('Текст ответа', response);
-        await listRecord();
+        await listRecordsUsers();
         const editModal = bootstrap.Modal.getInstance(modalEdit);
         editModal.hide();
         document.querySelector('#v-pills-admin-tab').click();
@@ -261,7 +306,7 @@ document.querySelector('#deleteFormBody').addEventListener('submit', async (even
     // });
     //console.log("Собран пользователь" , editUser);
     await DeleteUser(userId);
-    await listRecord();
+    await listRecordsUsers();
     const deleteModal = bootstrap.Modal.getInstance(modalDelete);
     deleteModal.hide();
     document.querySelector('#v-pills-admin-tab').click();
@@ -270,34 +315,5 @@ document.querySelector('#deleteFormBody').addEventListener('submit', async (even
 
 
 
-// }
-//
-// function addAuthenticationUserHeader() {
-//     const  userInfo = document.querySelector('#headerNavBar');
-//     let navBar = "";
-//     const tableAboutUser = document.querySelector('#tableAboutUser');
-//     let tableUser = "";
-//     fetch("admin/user")
-//         .then(response => response.json())
-//         .then(user => {
-//             navBar = '<h5><strong>${user.username} с ролями: ${user.roleSet} </strong></h5>'
-//             userInfo.innerHTML = navBar
-//             uTable =
-//                 `<tr>
-//                         <td>${user.id}</td>
-//                         <td>${user.username}</td>
-//                         <td>${user.password}</td>
-//                         <td>${user.name}</td>
-//                         <td>${user.surname}</td>
-//                         <td>${user.age}</td>
-//                         <td>${user.roleSet}</td>
-//                      </tr>
-//                     `
-//             tableAboutUser.innerHTML = uTable;
-//         })
-//         .catch(err => {
-//             console.log("Ошибка в блоке о пользователе", err);
-//         });
-// }
-//
+
 

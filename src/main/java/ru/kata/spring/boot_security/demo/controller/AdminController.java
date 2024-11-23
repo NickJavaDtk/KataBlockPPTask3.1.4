@@ -48,7 +48,9 @@ public class AdminController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<User> getAuthenticationUser(@AuthenticationPrincipal User user) {
+    public ResponseEntity<User> getAuthenticationUser(Principal principal) {
+        String username = principal.getName();
+        User user = userService.getUserByUsername(username).get();
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
