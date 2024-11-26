@@ -54,7 +54,9 @@ public class UserServiceImp implements UserService, UserDetailsService {
         if (checkLongValue(id)) {
             userTmp = getUser(id).get();
             if (userTmp != null) {
-                userTmp.setPassword(encoder.encode(user.getPassword()));
+                if (!encoder.matches(encoder.encode(user.getPassword()), userTmp.getPassword())) {
+                    userTmp.setPassword(encoder.encode(user.getPassword()));
+                }
                 userTmp.setName(user.getName());
                 userTmp.setSurname(user.getSurname());
                 userTmp.setAge(user.getAge());

@@ -180,12 +180,12 @@ async function openEditWindow(userId) {
         editRoles.innerHTML = "";
         roles.forEach(role => {
             const option = document.createElement('option');
-            option.value = role.id;
+            option.value = role.name;
             option.textContent = role.name;
             editRoles.appendChild(option);
         });
 
-        const editModal = new bootstrap.Modal(document.querySelector('#editModal'));
+        const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
         editModal.show();
     }  catch (error) {
         console.error('Ошибка при заполнении формы редактирования:', error);
@@ -197,17 +197,27 @@ document.querySelector('#editFormBody').addEventListener('submit', async (event)
     const userId = document.querySelector('#idEdit').value;
     const roleSelected = document.querySelector('#rolesEdit');
     const modalEdit = document.querySelector('#editModal');
+
     let roles = [];
-    console.log('выбраны роли ', roleSelected.selectedOptions);
+    // let rolesRaw  = Array.from(roleSelected.selectedOptions).map(option => ({
+    //     id: parseInt(option.value, 10)
+    // }));
+    console.log('выбраны роли ', roles);
+
+
+
     for (let option of roleSelected.selectedOptions) {
         if (option.value === USER_ROLE.name) {
             roles.push(USER_ROLE);
-        } else if (option.value === ADMIN_ROLE.name) {
+        }
+        if (option.value === ADMIN_ROLE.name) {
             roles.push(ADMIN_ROLE);
-        } else {
-            roles.push(ADMIN_ROLE, USER_ROLE);
         }
     }
+
+    console.log('выбраны роли ', roles);
+
+
     const editUser = {
         id: userId,
         username: document.querySelector('#loginEdit').value,
@@ -217,14 +227,7 @@ document.querySelector('#editFormBody').addEventListener('submit', async (event)
         age: document.querySelector('#ageEdit').value,
         roleSet: roles
     };
-    //try {
-        // const response = await fetch(`/admin/userput/${userId}`, {
-        //     method: 'PUT',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(editUser)
-        // });
+
         console.log("Собран пользователь" , editUser);
         const response = await putUpdateUser(userId, editUser);
         console.log('Текст ответа', response);
@@ -264,7 +267,8 @@ async function openDeleteWindow(userId) {
             option.textContent = role.name;
             deleteRoles.appendChild(option);
         });
-        const deleteModal = new bootstrap.Modal(document.querySelector('#deleteModal'));
+        //const deleteModal = bootstrap.Modal(document.querySelector('#deleteModal'));
+        const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
         deleteModal.show();
     }  catch (error) {
         console.error('Ошибка при заполнении формы удаления:', error);
@@ -307,7 +311,8 @@ document.querySelector('#deleteFormBody').addEventListener('submit', async (even
     //console.log("Собран пользователь" , editUser);
     await DeleteUser(userId);
     await listRecordsUsers();
-    const deleteModal = bootstrap.Modal.getInstance(modalDelete);
+    //const deleteModal = bootstrap.Modal.getInstance(modalDelete);
+    const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
     deleteModal.hide();
     document.querySelector('#v-pills-admin-tab').click();
 
